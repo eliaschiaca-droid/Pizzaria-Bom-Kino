@@ -622,8 +622,8 @@
                   <textarea id="order-notes" name="notes" maxlength="500" placeholder="Algum detalhe importante sobre o teu pedido?"></textarea>
                 </div>
               </div>
-              <button class="button form-submit" type="submit">Continuar pelo WhatsApp <span class="arrow" aria-hidden="true">↗</span></button>
-              <p class="form-note">O pedido e a hora ficam sujeitos à confirmação da Bom Kino. A taxa e disponibilidade de entrega são confirmadas pelo WhatsApp.</p>
+              <button class="button form-submit" type="submit">Registar pedido <span class="arrow" aria-hidden="true">↗</span></button>
+              <p class="form-note">Os dados são guardados no Supabase da Bom Kino para processar o pedido. A hora, a entrega e a respetiva taxa ficam sujeitas a confirmação.</p>
               <p class="form-status" id="order-status" role="status" aria-live="polite"></p>
             </form>
           </section>
@@ -652,15 +652,15 @@
                 </div>
                 <div class="field field--full">
                   <label for="booking-guests">Número de pessoas</label>
-                  <input id="booking-guests" name="guests" type="number" min="1" value="2" required>
+                  <input id="booking-guests" name="guests" type="number" min="1" max="30" value="2" required>
                 </div>
                 <div class="field field--full">
                   <label for="booking-notes">Observações (opcional)</label>
                   <textarea id="booking-notes" name="notes" maxlength="500" placeholder="Cadeira de bebé, ocasião especial ou outro pedido?"></textarea>
                 </div>
               </div>
-              <button class="button form-submit" type="submit">Pedir reserva pelo WhatsApp <span class="arrow" aria-hidden="true">↗</span></button>
-              <p class="form-note">Este formulário envia um pedido de reserva; a mesa só fica marcada após a confirmação da Bom Kino.</p>
+              <button class="button form-submit" type="submit">Registar pedido de reserva <span class="arrow" aria-hidden="true">↗</span></button>
+              <p class="form-note">Os teus dados são guardados no Supabase da Bom Kino. A reserva fica pendente e só será confirmada pela pizzaria.</p>
               <p class="form-status" id="booking-status" role="status" aria-live="polite"></p>
             </form>
           </section>
@@ -697,12 +697,20 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase/config.js"></script>
   <script>
     const filterButtons = document.querySelectorAll(".filter");
     const menuCards = document.querySelectorAll(".menu-card");
     const orderSummary = document.querySelector("#order-summary");
     const orderStatus = document.querySelector("#order-status");
     const whatsappNumber = "244933799271";
+    const supabaseConfig = window.BOM_KINO_SUPABASE;
+    const supabaseClient = window.supabase?.createClient && supabaseConfig
+      ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+        auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+      })
+      : null;
 
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -836,17 +844,55 @@
       return link;
     }
 
-    function showWhatsAppMessage(status, message) {
+    function showWhatsAppMessage(status, message, confirmation) {
       const link = createWhatsAppLink(message);
       status.replaceChildren(
-        document.createTextNode("Mensagem preparada. No WhatsApp, carrega em Enviar. Se não abrir automaticamente, "),
+        document.createTextNode(`${confirmation} Para notificar a pizzaria, `),
         link,
-        document.createTextNode("."),
+        document.createTextNode(". A mensagem só será enviada quando carregares em Enviar no WhatsApp."),
       );
-      window.open(link.href, "_blank", "noopener,noreferrer");
     }
 
-    document.querySelector("#order-form").addEventListener("submit", (event) => {
+    function getSubmissionId(form) {
+      if (!form.dataset.submissionId) {
+        form.dataset.submissionId = crypto.randomUUID();
+      }
+
+      return form.dataset.submissionId;
+    }
+
+    async function saveToSupabase(functionName, payload) {
+      if (!supabaseClient) {
+        throw new Error("A ligação à base de dados da Bom Kino ainda não está configurada.");
+      }
+
+      let result;
+      try {
+        result = await supabaseClient.rpc(functionName, payload);
+      } catch (error) {
+        console.error(`Falha de rede ao guardar em Supabase (${functionName}).`, error);
+        throw new Error("Não foi possível contactar o Supabase. Verifica a ligação à internet e tenta novamente.");
+      }
+
+      if (result.error) {
+        console.error(`Supabase recusou o pedido ${functionName}.`, result.error);
+        throw new Error("O Supabase não conseguiu guardar o pedido. Verifica os dados e tenta novamente.");
+      }
+
+      const savedId = result.data;
+      if (typeof savedId !== "string" || !/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(savedId)) {
+        console.error(`Resposta inesperada do Supabase (${functionName}).`, savedId);
+        throw new Error("Recebemos uma resposta inesperada do Supabase. Contacta a pizzaria antes de repetir o pedido.");
+      }
+
+      return savedId;
+    }
+
+    function setFormStatus(status, message) {
+      status.textContent = message;
+    }
+
+    document.querySelector("#order-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       orderStatus.replaceChildren();
 
@@ -891,10 +937,42 @@
         "Aguardo confirmação da disponibilidade e, se for entrega, da respetiva taxa.",
       ].join("\n");
 
-      showWhatsAppMessage(orderStatus, message);
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      setFormStatus(orderStatus, "A guardar o pedido em segurança…");
+
+      try {
+        const orderId = await saveToSupabase("create_order", {
+          p_submission_id: getSubmissionId(form),
+          p_customer_name: details.get("name"),
+          p_customer_phone: details.get("phone"),
+          p_fulfillment: details.get("fulfillment") === "Entrega ao domicílio" ? "delivery" : "pickup",
+          p_delivery_address: address || null,
+          p_requested_date: details.get("date"),
+          p_requested_time: details.get("time"),
+          p_items: selectedPizzas.map(({ name, quantity, price }) => ({
+            name,
+            quantity,
+            unitPrice: price,
+          })),
+          p_total_kz: total,
+          p_notes: notes || null,
+        });
+
+        showWhatsAppMessage(
+          orderStatus,
+          `${message}\nReferência do pedido: ${orderId}`,
+          `Pedido guardado no sistema da Bom Kino com a referência ${orderId.slice(0, 8)}.`,
+        );
+      } catch (error) {
+        console.error("Não foi possível registar o pedido da Bom Kino.", error);
+        setFormStatus(orderStatus, `${error.message} Se o problema persistir, contacta a Bom Kino por telefone.`);
+        submitButton.disabled = false;
+        return;
+      }
     });
 
-    document.querySelector("#booking-form").addEventListener("submit", (event) => {
+    document.querySelector("#booking-form").addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const form = event.currentTarget;
@@ -915,7 +993,32 @@
         "Aguardo confirmação da disponibilidade da mesa.",
       ].join("\n");
 
-      showWhatsAppMessage(document.querySelector("#booking-status"), message);
+      const bookingStatus = document.querySelector("#booking-status");
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      setFormStatus(bookingStatus, "A guardar o pedido de reserva em segurança…");
+
+      try {
+        const bookingId = await saveToSupabase("create_table_booking", {
+          p_submission_id: getSubmissionId(form),
+          p_customer_name: details.get("name"),
+          p_customer_phone: details.get("phone"),
+          p_requested_date: details.get("date"),
+          p_requested_time: details.get("time"),
+          p_party_size: Number(details.get("guests")),
+          p_notes: notes || null,
+        });
+
+        showWhatsAppMessage(
+          bookingStatus,
+          `${message}\nReferência da reserva: ${bookingId}`,
+          `Pedido de reserva guardado no sistema com a referência ${bookingId.slice(0, 8)}. A mesa ainda aguarda confirmação da Bom Kino.`,
+        );
+      } catch (error) {
+        console.error("Não foi possível registar a reserva da Bom Kino.", error);
+        setFormStatus(bookingStatus, `${error.message} Se o problema persistir, contacta a Bom Kino por telefone.`);
+        submitButton.disabled = false;
+      }
     });
   </script>
 </body>
