@@ -223,6 +223,24 @@
     .food-image { position: relative; height: 205px; overflow: hidden; background: #e8e3d7; }
     .food-image img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .4s; }
     .menu-card:hover .food-image img { transform: scale(1.05); }
+    .card-order-control { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 15px; }
+    .card-order-control > span { color: var(--muted); font-size: 11px; }
+    .quantity-control { display: flex; align-items: center; gap: 9px; }
+    .quantity-button {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: white;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 17px;
+    }
+    .quantity-button:hover:not(:disabled) { border-color: var(--green); background: var(--green); color: white; }
+    .quantity-button:disabled { cursor: not-allowed; opacity: .4; }
+    .quantity-value { min-width: 13px; text-align: center; font-size: 12px; font-weight: 700; }
     .tag {
       position: absolute;
       top: 13px;
@@ -242,6 +260,40 @@
     .price { color: var(--green); font-size: 14px; font-weight: 700; white-space: nowrap; }
     .card-content p { min-height: 37px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
     .menu-footnote { margin: 21px 0 0; color: var(--muted); font-size: 10px; }
+
+    .orders-section { padding: 78px 0 84px; background: var(--cream); }
+    .orders-grid { display: grid; grid-template-columns: 1.15fr .85fr; align-items: start; gap: 22px; }
+    .form-panel { padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    .form-panel .eyebrow { margin-bottom: 12px; color: #728b4d; }
+    .form-panel h3 { margin-bottom: 8px; font-family: var(--serif); font-size: 27px; letter-spacing: -.035em; }
+    .form-intro { margin-bottom: 21px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .order-summary { margin-bottom: 18px; padding: 14px; border-radius: 5px; background: #f2f1e9; }
+    .order-summary > p { margin: 0; color: var(--muted); font-size: 11px; }
+    .summary-row { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 8px; font-size: 11px; }
+    .summary-row:last-child { margin-bottom: 0; }
+    .summary-total { display: flex; justify-content: space-between; margin-top: 11px; padding-top: 11px; border-top: 1px solid #deded1; font-size: 12px; font-weight: 700; }
+    .order-form { display: grid; gap: 13px; }
+    .form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .field { display: grid; gap: 6px; min-width: 0; }
+    .field--full { grid-column: 1 / -1; }
+    .field label { color: #424a40; font-size: 10px; font-weight: 700; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: white;
+      color: var(--ink);
+      font: 12px var(--sans);
+    }
+    .field textarea { min-height: 74px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); outline: 2px solid rgba(49, 79, 59, .13); }
+    .form-submit { width: 100%; cursor: pointer; }
+    .form-note, .form-status { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .form-status:empty { display: none; }
+    .form-status a { color: var(--green); font-weight: 700; text-decoration: underline; }
+    [hidden] { display: none !important; }
 
     .promo { padding: 78px 0; }
     .promo-card {
@@ -281,7 +333,7 @@
       .nav { min-height: 70px; }
       .nav-links { gap: 17px; }
       .nav-links a { font-size: 11px; }
-      .nav-links a:nth-child(2) { display: none; }
+      .nav-links a:first-child, .nav-links a:last-child { display: none; }
       .nav-order { min-height: 39px; padding: 0 12px; font-size: 10px; }
       .brand { font-size: 23px; }
       .hero { min-height: 560px; }
@@ -299,6 +351,8 @@
       .card-content { padding: 14px; }
       .card-title h3 { font-size: 17px; }
       .section-heading { align-items: start; flex-direction: column; gap: 10px; }
+      .orders-section { padding: 58px 0; }
+      .orders-grid { grid-template-columns: 1fr; gap: 15px; }
       .promo { padding: 55px 0; }
       .promo-card::after { left: 20%; opacity: .7; }
       .promo-content { padding: 38px 28px; }
@@ -325,6 +379,9 @@
       .filter { padding: 8px 11px; font-size: 10px; }
       .menu-grid { grid-template-columns: 1fr; }
       .food-image { height: 210px; }
+      .form-panel { padding: 21px 17px; }
+      .form-fields { grid-template-columns: 1fr; }
+      .field--full { grid-column: auto; }
       .footer-info { gap: 15px; }
       .footer-info h3 { font-size: 9px; }
       .footer-info p, .footer-info a { font-size: 10px; }
@@ -343,9 +400,10 @@
       <div class="nav-links">
         <a href="#historia">A nossa história</a>
         <a href="#menu">Menu</a>
+        <a href="#pedidos">Pedir / reservar</a>
         <a href="#contactos">Contactos</a>
       </div>
-      <a class="nav-order" href="#menu">Ver menu <span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="nav-order" href="#pedidos">Fazer pedido <span class="arrow" aria-hidden="true">↗</span></a>
     </nav>
   </header>
 
@@ -357,8 +415,8 @@
           <h1 id="hero-title">A vida sabe<br>melhor com<br><em>uma fatia.</em></h1>
           <p class="hero-copy">Massa de fermentação lenta, ingredientes frescos e aquele sabor que faz qualquer dia ficar melhor. É assim na Bom Kino.</p>
           <div class="hero-actions">
-            <a class="button button--lime" href="#menu">Descobrir o menu <span class="arrow" aria-hidden="true">↗</span></a>
-            <a class="text-link" href="#historia">Conhece-nos <span aria-hidden="true">↓</span></a>
+            <a class="button button--lime" href="#pedidos">Pedir uma pizza <span class="arrow" aria-hidden="true">↗</span></a>
+            <a class="text-link" href="#reservar">Reservar mesa <span aria-hidden="true">↓</span></a>
           </div>
         </div>
       </div>
@@ -400,7 +458,7 @@
           <button class="filter" type="button" data-filter="da-casa" aria-pressed="false">Da casa</button>
         </div>
         <div class="menu-grid">
-          <article class="menu-card" data-category="classicas">
+          <article class="menu-card" data-category="classicas" data-price="3500">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80" alt="Pizza Margherita com tomate, mozzarella e manjericão" loading="lazy">
               <span class="tag">A clássica</span>
@@ -408,9 +466,17 @@
             <div class="card-content">
               <div class="card-title"><h3>Margherita</h3><span class="price">3 500 Kz</span></div>
               <p>Tomate, mozzarella fresca, manjericão e um fio de azeite.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Margherita no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Margherita ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
-          <article class="menu-card" data-category="da-casa">
+          <article class="menu-card" data-category="da-casa" data-price="4500">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80" alt="Pizza Pepperoni acabada de sair do forno" loading="lazy">
               <span class="tag">Mais pedida</span>
@@ -418,9 +484,17 @@
             <div class="card-content">
               <div class="card-title"><h3>Pepperoni</h3><span class="price">4 500 Kz</span></div>
               <p>Molho de tomate, mozzarella e pepperoni, sem complicações.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Pepperoni no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Pepperoni ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
-          <article class="menu-card" data-category="da-casa">
+          <article class="menu-card" data-category="da-casa" data-price="4200">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=800&q=80" alt="Pizza artesanal com ingredientes frescos" loading="lazy">
               <span class="tag">Da casa</span>
@@ -428,9 +502,17 @@
             <div class="card-content">
               <div class="card-title"><h3>Verde Kino</h3><span class="price">4 200 Kz</span></div>
               <p>Cogumelos, espinafres, mozzarella e o nosso toque especial.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Verde Kino no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Verde Kino ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
-          <article class="menu-card" data-category="classicas">
+          <article class="menu-card" data-category="classicas" data-price="4800">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=800&q=80" alt="Pizza de queijo e tomate" loading="lazy">
               <span class="tag">Para partilhar</span>
@@ -438,9 +520,17 @@
             <div class="card-content">
               <div class="card-title"><h3>Quatro Queijos</h3><span class="price">4 800 Kz</span></div>
               <p>Mozzarella, gorgonzola, parmesão e queijo de cabra.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Quatro Queijos no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Quatro Queijos ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
-          <article class="menu-card" data-category="da-casa">
+          <article class="menu-card" data-category="da-casa" data-price="4000">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80" alt="Pizza artesanal vegetariana" loading="lazy">
               <span class="tag">Colorida</span>
@@ -448,9 +538,17 @@
             <div class="card-content">
               <div class="card-title"><h3>Horta Fresca</h3><span class="price">4 000 Kz</span></div>
               <p>Pimentos, cebola roxa, azeitonas, tomate e mozzarella.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Horta Fresca no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Horta Fresca ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
-          <article class="menu-card" data-category="classicas">
+          <article class="menu-card" data-category="classicas" data-price="5000">
             <div class="food-image">
               <img src="https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&w=800&q=80" alt="Pizza tradicional acabada de preparar" loading="lazy">
               <span class="tag">Tradicional</span>
@@ -458,6 +556,14 @@
             <div class="card-content">
               <div class="card-title"><h3>Kino Especial</h3><span class="price">5 000 Kz</span></div>
               <p>Fiambre, cogumelos, azeitonas, mozzarella e molho da casa.</p>
+              <div class="card-order-control">
+                <span>Adicionar ao pedido</span>
+                <div class="quantity-control">
+                  <button class="quantity-button" type="button" data-quantity-change="-1" aria-label="Diminuir Kino Especial no pedido" disabled>−</button>
+                  <span class="quantity-value" aria-live="polite">0</span>
+                  <button class="quantity-button" type="button" data-quantity-change="1" aria-label="Adicionar Kino Especial ao pedido">+</button>
+                </div>
+              </div>
             </div>
           </article>
         </div>
@@ -465,13 +571,110 @@
       </div>
     </section>
 
+    <section class="orders-section" id="pedidos" aria-labelledby="orders-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">É fácil, é Bom Kino</p>
+            <h2 id="orders-title">O teu próximo momento começa aqui</h2>
+          </div>
+          <p>Envia o pedido pelo WhatsApp. A pizzaria confirma a disponibilidade contigo.</p>
+        </div>
+        <div class="orders-grid">
+          <section class="form-panel" aria-labelledby="order-title">
+            <p class="eyebrow">Feita para levar ou receber</p>
+            <h3 id="order-title">Pedir uma pizza</h3>
+            <p class="form-intro">Escolhe as pizzas no menu, indica quando queres recebê-las e envia o pedido à Bom Kino.</p>
+            <div class="order-summary" id="order-summary" aria-live="polite">
+              <p>Escolhe as pizzas no menu para começar o teu pedido.</p>
+            </div>
+            <form class="order-form" id="order-form">
+              <div class="form-fields">
+                <div class="field field--full">
+                  <label for="order-name">O teu nome</label>
+                  <input id="order-name" name="name" autocomplete="name" required>
+                </div>
+                <div class="field field--full">
+                  <label for="order-phone">O teu telemóvel</label>
+                  <input id="order-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="7" maxlength="24" placeholder="+244 9XX XXX XXX" required>
+                </div>
+                <div class="field">
+                  <label for="order-fulfillment">Como queres receber?</label>
+                  <select id="order-fulfillment" name="fulfillment" required>
+                    <option value="Levantamento na pizzaria">Levantamento na pizzaria</option>
+                    <option value="Entrega ao domicílio">Entrega ao domicílio</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="order-date">Dia pretendido</label>
+                  <input id="order-date" name="date" type="date" required>
+                </div>
+                <div class="field">
+                  <label for="order-time">Hora pretendida</label>
+                  <input id="order-time" name="time" type="time" min="12:00" max="21:30" step="1800" required>
+                </div>
+                <div class="field field--full" id="delivery-address-field" hidden>
+                  <label for="delivery-address">Morada de entrega</label>
+                  <input id="delivery-address" name="address" autocomplete="street-address">
+                </div>
+                <div class="field field--full">
+                  <label for="order-notes">Observações (opcional)</label>
+                  <textarea id="order-notes" name="notes" maxlength="500" placeholder="Algum detalhe importante sobre o teu pedido?"></textarea>
+                </div>
+              </div>
+              <button class="button form-submit" type="submit">Continuar pelo WhatsApp <span class="arrow" aria-hidden="true">↗</span></button>
+              <p class="form-note">O pedido e a hora ficam sujeitos à confirmação da Bom Kino. A taxa e disponibilidade de entrega são confirmadas pelo WhatsApp.</p>
+              <p class="form-status" id="order-status" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <section class="form-panel" id="reservar" aria-labelledby="booking-title">
+            <p class="eyebrow">Uma mesa à tua espera</p>
+            <h3 id="booking-title">Reservar uma mesa</h3>
+            <p class="form-intro">Diz-nos quando gostarias de vir e para quantas pessoas. Vamos confirmar contigo pelo WhatsApp.</p>
+            <form class="order-form" id="booking-form">
+              <div class="form-fields">
+                <div class="field field--full">
+                  <label for="booking-name">O teu nome</label>
+                  <input id="booking-name" name="name" autocomplete="name" required>
+                </div>
+                <div class="field field--full">
+                  <label for="booking-phone">O teu telemóvel</label>
+                  <input id="booking-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" minlength="7" maxlength="24" placeholder="+244 9XX XXX XXX" required>
+                </div>
+                <div class="field">
+                  <label for="booking-date">Dia</label>
+                  <input id="booking-date" name="date" type="date" required>
+                </div>
+                <div class="field">
+                  <label for="booking-time">Hora</label>
+                  <input id="booking-time" name="time" type="time" min="12:00" max="21:30" step="1800" required>
+                </div>
+                <div class="field field--full">
+                  <label for="booking-guests">Número de pessoas</label>
+                  <input id="booking-guests" name="guests" type="number" min="1" value="2" required>
+                </div>
+                <div class="field field--full">
+                  <label for="booking-notes">Observações (opcional)</label>
+                  <textarea id="booking-notes" name="notes" maxlength="500" placeholder="Cadeira de bebé, ocasião especial ou outro pedido?"></textarea>
+                </div>
+              </div>
+              <button class="button form-submit" type="submit">Pedir reserva pelo WhatsApp <span class="arrow" aria-hidden="true">↗</span></button>
+              <p class="form-note">Este formulário envia um pedido de reserva; a mesa só fica marcada após a confirmação da Bom Kino.</p>
+              <p class="form-status" id="booking-status" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+        </div>
+      </div>
+    </section>
+
     <section class="promo wrap" aria-label="Convite para jantar">
       <div class="promo-card">
         <div class="promo-content">
           <p class="eyebrow">Há lugar à mesa</p>
-          <h2>Junta a malta.<br>A pizza fica por nossa conta.</h2>
-          <p>Escolhe as tuas favoritas e vem partilhar um momento Bom Kino.</p>
-          <a class="button button--lime" href="#contactos">Fala connosco <span class="arrow" aria-hidden="true">↗</span></a>
+          <h2>Junta a malta.<br>Nós pomos a mesa.</h2>
+          <p>Escolhe a pizza, combina a hora e deixa o resto connosco.</p>
+          <a class="button button--lime" href="#reservar">Reservar mesa <span class="arrow" aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
@@ -487,7 +690,7 @@
         <div class="footer-info">
           <div><h3>Visita-nos</h3><p>Endereço e localização<br>a anunciar em breve</p></div>
           <div><h3>Horário</h3><p>Segunda a domingo<br>12h00 — 22h00</p></div>
-          <div><h3>Encomendas</h3><a href="#menu">Escolhe a tua pizza ↗</a></div>
+          <div><h3>Encomendas e mesas</h3><a href="#pedidos">Fazer pedido ou reservar ↗</a></div>
         </div>
       </div>
       <div class="footer-bottom"><span>© 2026 Bom Kino. Feito com carinho.</span><span>Uma fatia de cada vez.</span></div>
@@ -497,6 +700,9 @@
   <script>
     const filterButtons = document.querySelectorAll(".filter");
     const menuCards = document.querySelectorAll(".menu-card");
+    const orderSummary = document.querySelector("#order-summary");
+    const orderStatus = document.querySelector("#order-status");
+    const whatsappNumber = "244933799271";
 
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -512,6 +718,204 @@
           card.hidden = category !== "todas" && card.dataset.category !== category;
         });
       });
+    });
+
+    function updateOrderSummary() {
+      const selectedPizzas = [...menuCards]
+        .map((card) => ({
+          card,
+          quantity: Number(card.dataset.quantity || 0),
+          price: Number(card.dataset.price),
+          name: card.querySelector(".card-title h3").textContent,
+        }))
+        .filter((pizza) => pizza.quantity > 0);
+
+      orderSummary.replaceChildren();
+
+      if (selectedPizzas.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.textContent = "Escolhe as pizzas no menu para começar o teu pedido.";
+        orderSummary.append(emptyMessage);
+        return;
+      }
+
+      let total = 0;
+      selectedPizzas.forEach(({ name, quantity, price }) => {
+        const lineTotal = quantity * price;
+        total += lineTotal;
+
+        const row = document.createElement("div");
+        row.className = "summary-row";
+        const item = document.createElement("span");
+        item.textContent = `${quantity} × ${name}`;
+        const amount = document.createElement("span");
+        amount.textContent = `${lineTotal.toLocaleString("pt-AO")} Kz`;
+        row.append(item, amount);
+        orderSummary.append(row);
+      });
+
+      const totalRow = document.createElement("div");
+      totalRow.className = "summary-total";
+      const totalLabel = document.createElement("span");
+      totalLabel.textContent = "Total das pizzas";
+      const totalAmount = document.createElement("span");
+      totalAmount.textContent = `${total.toLocaleString("pt-AO")} Kz`;
+      totalRow.append(totalLabel, totalAmount);
+      orderSummary.append(totalRow);
+    }
+
+    menuCards.forEach((card) => {
+      card.dataset.quantity = "0";
+      const quantityValue = card.querySelector(".quantity-value");
+      const quantityButtons = card.querySelectorAll("[data-quantity-change]");
+
+      quantityButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const currentQuantity = Number(card.dataset.quantity);
+          const nextQuantity = Math.max(
+            0,
+            Math.min(20, currentQuantity + Number(button.dataset.quantityChange)),
+          );
+          card.dataset.quantity = String(nextQuantity);
+          quantityValue.textContent = String(nextQuantity);
+          quantityButtons[0].disabled = nextQuantity === 0;
+          quantityButtons[1].disabled = nextQuantity === 20;
+          updateOrderSummary();
+          orderStatus.textContent = "";
+        });
+      });
+    });
+
+    const deliverySelect = document.querySelector("#order-fulfillment");
+    const deliveryAddressField = document.querySelector("#delivery-address-field");
+    const deliveryAddress = document.querySelector("#delivery-address");
+
+    deliverySelect.addEventListener("change", () => {
+      const requiresAddress = deliverySelect.value === "Entrega ao domicílio";
+      deliveryAddressField.hidden = !requiresAddress;
+      deliveryAddress.required = requiresAddress;
+    });
+
+    const today = new Date();
+    const todayValue = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0"),
+    ].join("-");
+    document.querySelectorAll('input[type="date"]').forEach((input) => {
+      input.min = todayValue;
+    });
+
+    [["#order-date", "#order-time"], ["#booking-date", "#booking-time"]].forEach(([dateSelector, timeSelector]) => {
+      const dateInput = document.querySelector(dateSelector);
+      const timeInput = document.querySelector(timeSelector);
+      const validateFutureTime = () => {
+        const now = new Date();
+        const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+        const isPastTimeToday = dateInput.value === todayValue && timeInput.value <= currentTime;
+        timeInput.setCustomValidity(isPastTimeToday ? "Escolhe uma hora futura." : "");
+      };
+
+      dateInput.addEventListener("change", validateFutureTime);
+      timeInput.addEventListener("change", validateFutureTime);
+    });
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat("pt-PT", {
+        dateStyle: "long",
+        timeZone: "UTC",
+      }).format(new Date(`${value}T12:00:00Z`));
+    }
+
+    function createWhatsAppLink(message) {
+      const link = document.createElement("a");
+      link.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Abrir a mensagem no WhatsApp";
+      return link;
+    }
+
+    function showWhatsAppMessage(status, message) {
+      const link = createWhatsAppLink(message);
+      status.replaceChildren(
+        document.createTextNode("Mensagem preparada. No WhatsApp, carrega em Enviar. Se não abrir automaticamente, "),
+        link,
+        document.createTextNode("."),
+      );
+      window.open(link.href, "_blank", "noopener,noreferrer");
+    }
+
+    document.querySelector("#order-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      orderStatus.replaceChildren();
+
+      const form = event.currentTarget;
+      if (!form.reportValidity()) return;
+
+      const selectedPizzas = [...menuCards]
+        .map((card) => ({
+          quantity: Number(card.dataset.quantity),
+          price: Number(card.dataset.price),
+          name: card.querySelector(".card-title h3").textContent,
+        }))
+        .filter((pizza) => pizza.quantity > 0);
+
+      if (selectedPizzas.length === 0) {
+        orderStatus.textContent = "Escolhe pelo menos uma pizza no menu antes de enviar o pedido.";
+        document.querySelector(".menu-grid").scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const details = new FormData(form);
+      const total = selectedPizzas.reduce((sum, pizza) => sum + pizza.quantity * pizza.price, 0);
+      const items = selectedPizzas
+        .map((pizza) => `• ${pizza.quantity} × ${pizza.name} — ${(pizza.quantity * pizza.price).toLocaleString("pt-AO")} Kz`)
+        .join("\n");
+      const address = details.get("fulfillment") === "Entrega ao domicílio" ? details.get("address") : "";
+      const notes = details.get("notes");
+      const message = [
+        "Olá, Bom Kino! Gostaria de fazer este pedido:",
+        "",
+        items,
+        "",
+        `Total das pizzas: ${total.toLocaleString("pt-AO")} Kz`,
+        `Entrega: ${details.get("fulfillment")}`,
+        ...(address ? [`Morada: ${address}`] : []),
+        `Dia pretendido: ${formatDate(details.get("date"))}`,
+        `Hora pretendida: ${details.get("time")}`,
+        `Nome: ${details.get("name")}`,
+        `Telemóvel: ${details.get("phone")}`,
+        ...(notes ? [`Observações: ${notes}`] : []),
+        "",
+        "Aguardo confirmação da disponibilidade e, se for entrega, da respetiva taxa.",
+      ].join("\n");
+
+      showWhatsAppMessage(orderStatus, message);
+    });
+
+    document.querySelector("#booking-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      if (!form.reportValidity()) return;
+
+      const details = new FormData(form);
+      const notes = details.get("notes");
+      const message = [
+        "Olá, Bom Kino! Gostaria de pedir uma reserva de mesa:",
+        "",
+        `Dia: ${formatDate(details.get("date"))}`,
+        `Hora: ${details.get("time")}`,
+        `Número de pessoas: ${details.get("guests")}`,
+        `Nome: ${details.get("name")}`,
+        `Telemóvel: ${details.get("phone")}`,
+        ...(notes ? [`Observações: ${notes}`] : []),
+        "",
+        "Aguardo confirmação da disponibilidade da mesa.",
+      ].join("\n");
+
+      showWhatsAppMessage(document.querySelector("#booking-status"), message);
     });
   </script>
 </body>
